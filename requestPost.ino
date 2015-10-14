@@ -32,7 +32,7 @@ void setup() {
   sendData("AT+CWMODE=1\r\n","no change", 2000); 
   sendData("AT+CIPMODE=0\r\n", "OK",1000);  
   sendData("AT+CIPMUX=0\r\n", "OK",1000); 
-  sendData("AT+CWJAP=\"Angelo\",\"ttipodoo157\"\r\n","OK",10000); 
+  sendData("AT+CWJAP=\"SSID\",\"PASSWORD\"\r\n","OK",10000); 
   mlx.begin();  
 }
 
