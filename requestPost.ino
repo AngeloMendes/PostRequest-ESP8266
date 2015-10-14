@@ -193,7 +193,7 @@ void geraXML (){ // montagem do xml com os dados
   }
    strcpy(complemento,"<\\estacao>\n");
    concatenar(xml,complemento, sizeof(complemento));
-   strcpy(complemento,"fim\n");// não entendi pq, mas os ultimos 3 caracteres são ignorados na string xml
+   strcpy(complemento,"fim\n");// adicionei esse 'fim' para ser ignorado, não entendi pq, mas os ultimos 3 caracteres são ignorados na string xml
                                // independente de do tamanho do xml, sempre os 3 ultimos são ignorados, estou estudando o porquê
    concatenar(xml,complemento, sizeof(complemento));
    
