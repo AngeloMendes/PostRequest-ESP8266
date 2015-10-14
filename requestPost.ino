@@ -26,13 +26,28 @@ Sensor leitura[10];
 
 void setup() {
   Serial.begin(9600);
-  Serial1.begin(9600);// se for usar arduino uno vc deve ler sobre a lib Software Serial
+  Serial1.begin(9600);// se for usar arduino uno, leia sobre a lib Software Serial
   delay(150);
   sendData("AT+RST\r\n","ready", 2000); 
+  while(Serial.find("ready")){
+    sendData("AT+RST\r\n","ready", 2000);
+  }
   sendData("AT+CWMODE=1\r\n","no change", 2000); 
-  sendData("AT+CIPMODE=0\r\n", "OK",1000);  
-  sendData("AT+CIPMUX=0\r\n", "OK",1000); 
+  while(Serial.find("no change")){
+  sendData("AT+CWMODE=1\r\n","no change", 2000); 
+  }  
+  sendData("AT+CIPMODE=0\r\n","OK",1000);  
+  while(Serial.find("OK")){
+  sendData("AT+CIPMODE=0\r\n","OK",1000);  
+  }  
+  sendData("AT+CIPMUX=0\r\n","OK",1000); 
+  while(Serial.find("OK")){
+  sendData("AT+CIPMUX=0\r\n","OK",1000); 
+  }  
   sendData("AT+CWJAP=\"SSID\",\"PASSWORD\"\r\n","OK",10000); 
+  while(Serial.find("OK")){
+  sendData("AT+CWJAP=\"SSID\",\"PASSWORD\"\r\n","OK",10000); 
+  }
   mlx.begin();  
 }
 
@@ -114,7 +129,7 @@ String sendData(String command, String fimResposta, const int timeout){// funç�
       Serial.print("Resposta: ");
     }
     String response = "";
-    Serial1.print(command); // send the read character to th
+    Serial1.print(command); 
     long int time = millis();
     while( (time+timeout) > millis() && (response.indexOf(fimResposta)==-1)){
         while(Serial1.available()) { 
@@ -128,17 +143,18 @@ String sendData(String command, String fimResposta, const int timeout){// funç�
 
 void geraXML (){ // montagem do xml com os dados 
  
-  char xml[2500];
-  char complemento[2500];
+  char xml[3500]="";
+  char complemento[2500]="";
  
   
-   strcpy(xml,"\<'?xml' version=\'1.0\' encoding=\'UTF-8\'\?\>\n");
-   strcpy(complemento,"\n<estacao>\n");
+   strcpy(xml,"\n\<'?xml' version=\'1.0\' encoding=\'UTF-8\'\?\>\n");
+   strcpy(complemento,"<estacao>\n");
    concatenar(xml,complemento, sizeof(complemento));
+  
    for(i=0;i<1;i++){
-    strcpy(complemento,"\n<registro>\n");
+    strcpy(complemento,"<registro>\n");
     concatenar(xml,complemento, sizeof(complemento));
-    strcpy(complemento,"<id>\n");
+     strcpy(complemento,"<id>\n");
     concatenar(xml,complemento, sizeof(complemento));
     String auxID = (String) id;
     auxID.toCharArray(complemento,sizeof(complemento));
@@ -171,12 +187,14 @@ void geraXML (){ // montagem do xml com os dados
     concatenar(xml,complemento, sizeof(complemento));
     strcpy(complemento,"\n<\\valorLido>\n");
     concatenar(xml,complemento, sizeof(complemento));
-    
     strcpy(complemento,"<\\registro>\n");
     concatenar(xml,complemento, sizeof(complemento));
-   
+       
   }
    strcpy(complemento,"<\\estacao>\n");
+   concatenar(xml,complemento, sizeof(complemento));
+   strcpy(complemento,"fim\n");// não entendi pq, mas os ultimos 3 caracteres são ignorados na string xml
+                               // independente de do tamanho do xml, sempre os 3 ultimos são ignorados, estou estudando o porquê
    concatenar(xml,complemento, sizeof(complemento));
    
    enviarLeitura(xml);
@@ -184,6 +202,7 @@ void geraXML (){ // montagem do xml com os dados
 }
 
 void concatenar(char* base, char* acrescimo, int tamAcres){// funcao para concatenar os dados sem ocorrer overflow ou fragmentacao
+                                                           // strcat e atribuicao simples (char = char + complemento) deram problemas
   int i;
   int tamBase = 0;
   while(base[tamBase]!='\0')tamBase++;
